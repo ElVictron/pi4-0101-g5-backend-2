@@ -1,0 +1,38 @@
+[project]
+name = "pi4-backend-2"
+version = "0.1.0"
+description = "Atualizações em tempo real da biblioteca (PI IV 0101 - Grupo 5)"
+requires-python = ">=3.12"
+dependencies = [
+    "anyio>=4,<5",
+    "fastapi>=0.115,<1",
+    "pydantic>=2.8,<3",
+    "uvicorn>=0.35,<1",
+    "websockets>=13,<17",
+]
+
+[project.optional-dependencies]
+dev = [
+    "httpx>=0.27,<1",
+    "pytest>=8.3,<9",
+    "pytest-cov>=6,<8",
+    "ruff>=0.12,<1",
+    "trustme>=1.2,<2",
+]
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
