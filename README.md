@@ -71,3 +71,4 @@ uv run --locked --extra dev ruff format --check .
 
 A suíte verifica os erros do CT12, a entrega e a reconexão do CT13, e a
 publicação por HTTPS seguida de recepção por WSS com verificação de certificado.
+O GitHub Actions roda essas verificações a cada push (card #783).
