@@ -35,6 +35,10 @@ ausentes ou ter valor `null`. Campos desconhecidos são ignorados.
 O Backend 2 responde com HTTP 200 e gera um identificador por publicação aceita,
 inclusive quando nenhum painel está conectado.
 
+## Entrega repetida e fora de ordem
+
+O Backend 1 entrega "pelo menos uma vez" e não garante a ordem: um evento que falhou fica guardado e é reenviado manualmente, depois de eventos mais novos. O Backend 2 **não** deduplica nem reordena. Ele aceita e repassa cada publicação válida, e `eventoId` identifica a publicação aceita, não o fato que o evento descreve. Quem usa o evento (o Frontend) compara `atualizadaEm` e ignora o que for mais antigo que o já aplicado para o mesmo livro (CT13).
+
 ## Erros
 
 | Quando | O que volta |
