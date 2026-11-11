@@ -37,6 +37,10 @@ Cada mensagem é um objeto JSON com o campo `evento` igual a
 Quando o CT12 não traz `emprestimoId` ou envia `null`, a mensagem omite
 esse campo. O Backend 2 só repassa os campos do CT13.
 
+## Ordem das mensagens
+
+O Backend 2 repassa as mensagens na ordem em que aceita as publicações, mas essa ordem pode diferir da ordem dos fatos: um reenvio do Backend 1 (CT12) pode trazer um evento antigo depois de um novo. Por isso o Frontend guarda, por livro, o `atualizadaEm` da última mensagem aplicada e ignora mensagens com `atualizadaEm` anterior. Mensagens com o mesmo `atualizadaEm` são aplicadas na ordem de chegada. O formato `AAAA-MM-DDTHH:MM:SS` permite comparar os textos diretamente.
+
 ## Saída
 
 não tem.

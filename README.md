@@ -39,36 +39,35 @@ com `PORTA`. O endereço padrão local é `127.0.0.1`, configurável com `HOST`.
 Use um certificado que inclua o endereço usado na URL e cuja CA seja confiável
 para o cliente. `GET /saude` retorna `{"status":"ok"}`.
 
-### Integração com o Compose
+### Sistema completo (Compose)
 
-O trecho abaixo é o serviço a incorporar ao Compose do grupo. Use
-`BACKEND2_URL=https://backend2:8443` no Backend 1, com a CA montada e indicada
-em `BACKEND2_CA_BUNDLE`. Para o navegador, encaminhe `/ws/biblioteca` pelo
-proxy do Frontend com suporte a WebSocket e certificado confiável.
-Restrinja a publicação `POST /eventos/biblioteca` à rede interna dos serviços.
+O Compose com frontend, Backend 1, Backend 2 e PostgreSQL fica no repositório
+do Backend 1 (`pi4-0101-g5-backend-1`, `docker compose up --build`), com os três
+repositórios lado a lado. Lá estão:
 
-```yaml
-services:
-  backend2:
-    build: ../pi4-0101-g5-backend-2
-    environment:
-      SSL_CERTFILE: /certs/backend2.pem
-      SSL_KEYFILE: /certs/backend2-key.pem
-    volumes:
-      - ./certs:/certs:ro
-```
+- `scripts/gerar-certificados.sh`: gera a CA local e o certificado deste serviço
+  (nomes `localhost`, `backend2`, `127.0.0.1`). O `docker compose` roda o script na
+  primeira subida.
+- `BACKEND2_URL=https://backend2:8443` e `BACKEND2_CA_BUNDLE=/certs/ca.pem` no
+  Backend 1, que verifica a CA local.
+- O Frontend abre `wss://localhost:8443/ws/biblioteca` direto neste serviço. O
+  navegador precisa confiar no `certs/ca.pem`; sem isso o WSS é recusado.
+- `docs/roteiro-demonstracao.md` e `scripts/integracao/teste_duas_abas.py`, que
+  confere o fluxo de duas abas com o sistema real.
 
-O certificado interno precisa incluir `backend2` e a chave montada precisa
-estar acessível ao usuário do contêiner (UID 10002).
+Este serviço usa o certificado e a chave montados em `/certs`, somente leitura. A
+chave precisa estar acessível ao usuário do contêiner (UID 10002). `POST
+/eventos/biblioteca` só deve ser alcançável pela rede interna dos serviços.
 
 ## Testes
 
 ```powershell
-uv run --locked --extra dev pytest --cov=app.main --cov-branch
+uv run --locked --extra dev pytest --cov=app --cov-branch
 uv run --locked --extra dev ruff check .
 uv run --locked --extra dev ruff format --check .
 ```
 
-A suíte verifica os erros do CT12, a entrega e a reconexão do CT13, e a
-publicação por HTTPS seguida de recepção por WSS com verificação de certificado.
+A suíte verifica os erros do CT12, a entrega e a reconexão do CT13, a
+inicialização (certificado e chave obrigatórios, endereço e porta) e a publicação
+por HTTPS seguida de recepção por WSS com verificação de certificado.
 O GitHub Actions roda essas verificações a cada push (card #783).

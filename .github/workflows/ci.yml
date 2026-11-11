@@ -32,4 +32,4 @@ jobs:
         run: uv run --locked --extra dev ruff format --check .
 
       - name: Executar testes
-        run: uv run --locked --extra dev pytest --cov=app.main --cov-branch --cov-fail-under=85
+        run: uv run --locked --extra dev pytest --cov=app --cov-branch --cov-fail-under=85
