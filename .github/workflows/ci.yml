@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  testes:
+    name: Lint e testes do Backend 2
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.12.13"
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: uv sync --locked --extra dev
+
+      - name: Conferir lint
+        run: uv run --locked --extra dev ruff check .
+
+      - name: Conferir formatação
+        run: uv run --locked --extra dev ruff format --check .
+
+      - name: Executar testes
+        run: uv run --locked --extra dev pytest --cov=app.main --cov-branch --cov-fail-under=85

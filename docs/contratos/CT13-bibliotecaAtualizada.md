@@ -19,6 +19,24 @@
 | quantidadeDisponivel | inteiro | sim | 2 |
 | atualizadaEm | data e hora | sim | 2026-10-13T19:20:00 |
 
+Cada mensagem é um objeto JSON com o campo `evento` igual a
+`bibliotecaAtualizada` e os campos da tabela no mesmo nível. Exemplo:
+
+```json
+{
+  "evento": "bibliotecaAtualizada",
+  "tipo": "emprestimo_registrado",
+  "livroId": 101,
+  "emprestimoId": 9001,
+  "status": "ativo",
+  "quantidadeDisponivel": 2,
+  "atualizadaEm": "2026-10-13T19:20:00"
+}
+```
+
+Quando o CT12 não traz `emprestimoId` ou envia `null`, a mensagem omite
+esse campo. O Backend 2 só repassa os campos do CT13.
+
 ## Saída
 
 não tem.
@@ -29,3 +47,4 @@ não tem.
 |---|---|
 | Painel estava fechado durante o envio | Nada. Ao abrir, o Frontend busca os dados pelas operações CT7 e CT8 |
 | Conexão WSS perdida | O Frontend tenta reconectar; até reconectar, a atualização é recuperada por nova consulta HTTPS |
+| Painel deixa de acompanhar as atualizações | Se a fila de 32 eventos lotar, o painel é desconectado com código WebSocket 1013 e segue o mesmo fluxo de recuperação |
