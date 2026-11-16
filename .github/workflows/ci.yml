@@ -26,16 +26,16 @@ jobs:
           python-version: "3.12"
 
       - name: Instalar dependências
-        run: uv sync --locked --extra dev
+        run: uv sync --locked --extra dev --no-install-project --no-build
 
       - name: Conferir lint
-        run: uv run --locked --extra dev ruff check .
+        run: uv run --no-build --no-sync --locked --extra dev ruff check .
 
       - name: Conferir formatação
-        run: uv run --locked --extra dev ruff format --check .
+        run: uv run --no-build --no-sync --locked --extra dev ruff format --check .
 
       - name: Executar testes
-        run: uv run --locked --extra dev pytest --cov=app --cov-branch --cov-report=xml --cov-fail-under=85
+        run: uv run --no-build --no-sync --locked --extra dev python -m pytest --cov=app --cov-branch --cov-report=xml --cov-fail-under=85
 
       # Só roda quando o segredo SONAR_TOKEN existe (PRs de forks não recebem segredos).
       - name: Análise no SonarQube Cloud
