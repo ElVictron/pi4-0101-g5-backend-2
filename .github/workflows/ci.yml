@@ -11,11 +11,14 @@ jobs:
     name: Lint e testes do Backend 2
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0  # o Sonar usa o histórico para atribuir o código novo
 
       - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
@@ -23,13 +26,18 @@ jobs:
           python-version: "3.12"
 
       - name: Instalar dependências
-        run: uv sync --locked --extra dev
+        run: uv sync --locked --extra dev --no-install-project --no-build
 
       - name: Conferir lint
-        run: uv run --locked --extra dev ruff check .
+        run: uv run --no-build --no-sync --locked --extra dev ruff check .
 
       - name: Conferir formatação
-        run: uv run --locked --extra dev ruff format --check .
+        run: uv run --no-build --no-sync --locked --extra dev ruff format --check .
 
       - name: Executar testes
-        run: uv run --locked --extra dev pytest --cov=app --cov-branch --cov-fail-under=85
+        run: uv run --no-build --no-sync --locked --extra dev python -m pytest --cov=app --cov-branch --cov-report=xml --cov-fail-under=85
+
+      # Só roda quando o segredo SONAR_TOKEN existe (PRs de forks não recebem segredos).
+      - name: Análise no SonarQube Cloud
+        if: env.SONAR_TOKEN != ''
+        uses: SonarSource/sonarqube-scan-action@59202af334b4ba7b5db01b701b8e79f8b3bef0f4 # v8.5.0
